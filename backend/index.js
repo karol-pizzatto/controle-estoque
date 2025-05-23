@@ -76,14 +76,14 @@ app.get('/produtos', async (_, res) => {
 
 // POST /produtos
 app.post('/produtos', async (req, res) => {
-  const { nome, quantidade = 0, localizacao = '', minimo = 0 } = req.body
+  const { nome, quantidade = 0, minimo = 0 } = req.body
   const db = await dbPromise
 
   // Insere produto
   const result = await db.run(
-    `INSERT INTO produto (nome, quantidade, localizacao, minimo)
+    `INSERT INTO produto (nome, quantidade, minimo)
      VALUES (?, ?, ?, ?)`,
-    nome, quantidade, localizacao, minimo
+    nome, quantidade, minimo
   )
 
 // registra entrada inicial
@@ -110,7 +110,6 @@ app.put('/produtos/:id', async (req, res) => {
     `UPDATE produto
      SET nome        = COALESCE(?, nome),
          quantidade  = COALESCE(?, quantidade),
-         localizacao = COALESCE(?, localizacao),
          minimo      = COALESCE(?, minimo)
      WHERE id = ?`,
     nome, quantidade, localizacao, minimo, id

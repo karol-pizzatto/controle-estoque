@@ -39,7 +39,14 @@ export function ProdutoList({ onEdit }) {
       <table style={{ width: '100%', borderCollapse: 'collapse' }}>
         <thead>
           <tr>
-            <th>Nome</th><th>Qtd</th><th>Min</th><th>Localização</th><th>Ações</th>
+            <th>Nome</th>
+            <th>Marca</th>
+            <th>Qtd</th>
+            <th>Min</th>
+            <th>Validade</th>
+            <th>Custo</th>
+            <th>Venda</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -48,9 +55,12 @@ export function ProdutoList({ onEdit }) {
             return (
               <tr key={p.id} style={baixo ? { background: '#fdd' } : {}}>
                 <td>{p.nome}</td>
+                <th>{p.marca}</th>
                 <td>{p.quantidade}</td>
                 <td>{p.minimo}</td>
-                <td>{p.localizacao}</td>
+                <th>{p.data_validade?.slide(0,10) || '-'}</th>
+                <th>{p.valor_custo.toFixed(2)}</th>
+                <th>{p.valor_venda.toFixed(2)}</th>
                 <td>
                   <button onClick={() => onEdit(p)} aria-label={`Editar ${p.nome}`}>
                     ✏️
