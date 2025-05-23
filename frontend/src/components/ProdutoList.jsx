@@ -43,7 +43,7 @@ export function ProdutoList({ onEdit }) {
             <th>Marca</th>
             <th>Qtd</th>
             <th>Min</th>
-            <th>Validade</th>
+            <th>Validade (DD-MM-YYYY)</th>
             <th>Custo</th>
             <th>Venda</th>
             <th>Ações</th>
@@ -58,7 +58,7 @@ export function ProdutoList({ onEdit }) {
                 <th>{p.marca}</th>
                 <td>{p.quantidade}</td>
                 <td>{p.minimo}</td>
-                <th>{p.data_validade?.slide(0,10) || '-'}</th>
+                <th>{validade}</th>
                 <th>{p.valor_custo.toFixed(2)}</th>
                 <th>{p.valor_venda.toFixed(2)}</th>
                 <td>

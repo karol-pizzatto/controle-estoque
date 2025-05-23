@@ -17,6 +17,17 @@ export function ProdutoForm({ produtoEdit, onSave }) {
       setQtde(produtoEdit.quantidade)
       setMinimo(produtoEdit.minimo)
       setDataValidade(produtoEdit.data_validade?.slide(0,10) || '')
+      if (produtoEdit.data_validade) {
+        const v = produtoEdit.data_validade
+        if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+          const [y,m,d] = v.split('-')
+          setDataValidade(`${d}-${m}-${y}`)
+        } else {
+          setDataValidade(v)
+        }
+      } else {
+        setDataValidade('')
+      }
       setValorCusto(produtoEdit.valor_custo)
       setValorVenda(produtoEdit.valor_venda)
     }
