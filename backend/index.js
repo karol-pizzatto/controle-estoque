@@ -9,15 +9,16 @@ import sqlite3 from 'sqlite3'
 const app = express()
 app.use(cors(), express.json())
 
-// 1) Abre (ou cria) o SQLite “estoque.db”
+// Abre (ou cria) o SQLite “estoque.db”
 const dbPromise = open({
   filename: './estoque.db',
   driver: sqlite3.Database
 })
 
-// 2) Cria tabela + seed padrão
+// Cria tabela + seed padrão
 ;(async () => {
   const db = await dbPromise
+// tabela produto
   await db.run(`
     CREATE TABLE IF NOT EXISTS produto (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -45,12 +46,25 @@ const dbPromise = open({
     }
     console.log('🛠️  Produtos padrão Vital Água inseridos')
   }
+
+  // Tabela movimento
+  await db.run(`
+    CREATE TABLE IF NOT EXISTS movimento (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      produto_id INTEGER NOT NULL,
+      tipo TEXT NOT NULL,
+      quantidade INTEGER NOT NULL,
+      criado_em TEXT NOT NULL,
+      FOREIGN KEY(produto_id) REFERENCES produto(id)
+    )
+  `)
+  console.log('✅ Tabela movimento pronta!')
 })()
 
-// 3) Teste de vida
+// Teste de vida - rota raiz
 app.get('/', (_, res) => res.send('API Vital Água está viva!'))
 
-// 4) Rotas CRUD
+// Rotas CRUD
 
 // GET /produtos
 app.get('/produtos', async (_, res) => {
@@ -64,11 +78,20 @@ app.get('/produtos', async (_, res) => {
 app.post('/produtos', async (req, res) => {
   const { nome, quantidade = 0, localizacao = '', minimo = 0 } = req.body
   const db = await dbPromise
+
+  // Insere produto
   const result = await db.run(
     `INSERT INTO produto (nome, quantidade, localizacao, minimo)
      VALUES (?, ?, ?, ?)`,
     nome, quantidade, localizacao, minimo
   )
+
+// registra entrada inicial
+await db.run(
+   `INSERT INTO movimento (produto_id, tipo, quantidade, criado_em)
+     VALUES (?, 'entrada', ?, ?)`,
+    result.lastID, quantidade, new Date().toISOString()
+)
   const produto = await db.get('SELECT * FROM produto WHERE id = ?', result.lastID)
   res.status(201).json(produto)
 })
@@ -78,6 +101,11 @@ app.put('/produtos/:id', async (req, res) => {
   const { id } = req.params
   const { nome, quantidade, localizacao, minimo } = req.body
   const db = await dbPromise
+
+// busca quantidade atual antes do update
+  const before = await db.get('SELECT quantidade FROM produto WHERE id = ?', id)
+
+// atualiza produto
   await db.run(
     `UPDATE produto
      SET nome        = COALESCE(?, nome),
@@ -87,6 +115,21 @@ app.put('/produtos/:id', async (req, res) => {
      WHERE id = ?`,
     nome, quantidade, localizacao, minimo, id
   )
+
+// Busca quantidade depois da atualização
+  const after = await db.get('SELECT quantidade FROM produto WHERE id = ?', id)
+  const delta = after.quantidade - before.quantidade
+
+// Registra movimento se houver variação
+  if (delta !== 0) {
+    const tipo = delta > 0 ? 'entrada' : 'saida'
+    await db.run(
+      `INSERT INTO movimento (produto_id, tipo, quantidade, criado_em)
+       VALUES (?, ?, ?, ?)`,
+      id, tipo, Math.abs(delta), new Date().toISOString()
+    )
+  }
+
   const produto = await db.get('SELECT * FROM produto WHERE id = ?', id)
   res.json(produto)
 })
@@ -99,7 +142,7 @@ app.delete('/produtos/:id', async (req, res) => {
   res.status(204).end()
 })
 
-// 5) Integração IoT via MQTT
+// Integração IoT via MQTT
 const client = mqtt.connect(process.env.MQTT_BROKER_URL || 'mqtt://broker.emqx.io')
 client.on('connect', () => {
   console.log('🔌 MQTT conectado!')
@@ -116,6 +159,6 @@ client.on('message', async (topic, msg) => {
   }
 })
 
-// 6) Sobe o servidor
+// Sobe o servidor
 const PORT = process.env.PORT || 5000
 app.listen(PORT, () => console.log(`🚀 Backend SQLite em http://localhost:${PORT}`))
