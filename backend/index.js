@@ -1,6 +1,6 @@
-const cors = require('cors');
 const functions = require('firebase-functions');
 const express   = require('express');
+const cors = require('cors');           // tentativa de nova posição
 const mqtt      = require('mqtt');
 const { open }  = require('sqlite');
 const sqlite3   = require('sqlite3');
