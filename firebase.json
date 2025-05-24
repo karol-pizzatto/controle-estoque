@@ -1,7 +1,11 @@
 {
-  "functions": {
-    "source": "backend"
-  },
+  "functions": [
+    {
+      "source": "backend",
+      "codebase": "default",
+      "runtime": "nodejs22"
+    }
+  ],
   "hosting": {
     "site": "controleestoquevitalagua",
     "public": "frontend/dist",
@@ -11,7 +15,14 @@
       "**/node_modules/**"
     ],
     "rewrites": [
-      { "source": "/api/**", "function": "app" }    
+      {
+        "source": "/api/**",
+        "function": "app"
+      },
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
     ]
   }
 }

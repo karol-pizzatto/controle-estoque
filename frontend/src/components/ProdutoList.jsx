@@ -4,13 +4,14 @@ import axios from 'axios'
 export function ProdutoList({ onEdit }) {
   const [produtos, setProdutos] = useState([])
 
-  // mantém só esta função
+  // 1) Busca via endpoint reescrito 
   const carregar = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/produtos')
-      setProdutos(response.data)
+      const response = await axios.get('https://app-scjrhl763a-uc.a.run.app/api/produtos')
+      setProdutos(data)
     } catch (err) {
       console.error('Falha ao carregar produtos:', err)
+      alert('Não foi possível carregar os produtos.')
     }
   }
 
@@ -20,8 +21,13 @@ export function ProdutoList({ onEdit }) {
 
   const excluir = async id => {
     if (!window.confirm('Confirma exclusão deste produto?')) return
-    await axios.delete(`http://localhost:5000/produtos/${id}`)
-    carregar()
+    try {
+      await axios.delete(`https://app-scjrhl763a-uc.a.run.app/api/produtos/${produtoId}`)
+      carregar()
+    } catch (err) {
+      console.error('Erro ao excluir:', err)
+      alert('Não foi possível excluir o produto.')
+    }
   }
 
   const algumBaixo = produtos.some(p => p.quantidade <= p.minimo)
@@ -43,7 +49,7 @@ export function ProdutoList({ onEdit }) {
             <th>Marca</th>
             <th>Qtd</th>
             <th>Min</th>
-            <th>Validade (DD-MM-YYYY)</th>
+            <th>Validade</th>
             <th>Custo</th>
             <th>Venda</th>
             <th>Ações</th>
@@ -52,20 +58,28 @@ export function ProdutoList({ onEdit }) {
         <tbody>
           {produtos.map(p => {
             const baixo = p.quantidade <= p.minimo
+
+            // 2) Formata data de validade para DD-MM-YYYY
+            let validade = ''
+            if (p.data_validade) {
+              const [y, m, d] = p.data_validade.split('-')
+              validade = `${d}-${m}-${y}`
+            }
+
             return (
               <tr key={p.id} style={baixo ? { background: '#fdd' } : {}}>
                 <td>{p.nome}</td>
-                <th>{p.marca}</th>
+                <td>{p.marca}</td>
                 <td>{p.quantidade}</td>
                 <td>{p.minimo}</td>
-                <th>{validade}</th>
-                <th>{p.valor_custo.toFixed(2)}</th>
-                <th>{p.valor_venda.toFixed(2)}</th>
+                <td>{validade}</td>
+                <td>{p.valor_custo.toFixed(2)}</td>
+                <td>{p.valor_venda.toFixed(2)}</td>
                 <td>
-                  <button onClick={() => onEdit(p)} aria-label={`Editar ${p.nome}`}>
+                  <button onClick={() => onEdit(p)} title={`Editar ${p.nome}`}>
                     ✏️
                   </button>{' '}
-                  <button onClick={() => excluir(p.id)} aria-label={`Excluir ${p.nome}`}>
+                  <button onClick={() => excluir(p.id)} title={`Excluir ${p.nome}`}>
                     🗑️
                   </button>
                 </td>

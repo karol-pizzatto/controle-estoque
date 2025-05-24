@@ -5,12 +5,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     proxy: {
-      // tudo que bater em /produtos vai pro backend:5000
-      '/produtos': {
-        target: 'http://localhost:5000',
-        changeOrigin: true,
-        secure: false
-      }
-    }
+    '/api': 'http://127.0.0.1:5001/controleestoquevitalagua/us-central1/app'
   }
-})
+}
+  }
+)

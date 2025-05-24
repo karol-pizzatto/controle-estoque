@@ -11,10 +11,10 @@ export function Relatorio() {
   const hoje = new Date().toISOString().slice(0, 10)
 
   useEffect(() => {
-    axios.get(`http://localhost:5000/relatorios/estoque`)
+    axios.get(`https://app-scjrhl763a-uc.a.run.app/relatorios/estoque`)
       .then(res => setEstoque(res.data))
       .catch(console.error)
-    axios.get(`http://localhost:5000/relatorios/movimentos/${hoje}`)
+    axios.get(`https://app-scjrhl763a-uc.a.run.app/relatorios/movimentos/${hoje}`)
       .then(res => setMovimentos(res.data))
       .catch(console.error)
   }, [hoje])
