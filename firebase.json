@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "site": "controle-de-estoque-vital-agua",
+    "site": "controle-estoquevitalagua",
     "public": "frontend/dist",
     "ignore": [
       "firebase.json",
