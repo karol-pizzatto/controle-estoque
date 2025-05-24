@@ -6,16 +6,21 @@ const { open } = require('sqlite')
 const sqlite3 = require('sqlite3')
 
 const app = express()
-app.use(cors());
-app.use(express.json());
+app.use(cors())
+app.use(express.json())
+
+// Health-check para Gen-2 e Functions Framework
+app.get('/', (req, res) => {
+  res.status(200).send('OK')
+})
 
 // 1) Conexão SQLite e seed
 const dbPromise = open({
   filename: './estoque.db',
   driver: sqlite3.Database
-});
+})
 
-(async () => {
+;(async () => {
   const db = await dbPromise
 
   // Tabela produto
@@ -30,7 +35,7 @@ const dbPromise = open({
       valor_custo REAL NOT NULL DEFAULT 0,
       valor_venda REAL NOT NULL DEFAULT 0
     )
-  `);
+  `)
 
   // Seed padrão
   const { cnt } = await db.get('SELECT COUNT(*) as cnt FROM produto')
@@ -61,14 +66,14 @@ const dbPromise = open({
       FOREIGN KEY(produto_id) REFERENCES produto(id)
     )
   `)
-})();
+})()
 
-// Rotas CRUD
-app.get('/produtos', async (_, res) => {
+// Rotas CRUD prefixadas com /api
+app.get('/api/produtos', async (_, res) => {
   const db = await dbPromise
   const produtos = await db.all('SELECT * FROM produto')
-  res.json(produtos);
-});
+  res.json(produtos)
+})
 
 app.post('/api/produtos', async (req, res) => {
   const { nome, marca, quantidade = 0, minimo = 0, data_validade = null, valor_custo = 0, valor_venda = 0 } = req.body
@@ -85,7 +90,7 @@ app.post('/api/produtos', async (req, res) => {
   )
   const produto = await db.get('SELECT * FROM produto WHERE id = ?', result.lastID)
   res.status(201).json(produto)
-});
+})
 
 app.put('/api/produtos/:id', async (req, res) => {
   const { id } = req.params
@@ -103,41 +108,49 @@ app.put('/api/produtos/:id', async (req, res) => {
          valor_venda = COALESCE(?, valor_venda)
      WHERE id = ?`,
     nome, marca, quantidade, minimo, data_validade, valor_custo, valor_venda, id
-  );
+  )
   const after = await db.get('SELECT quantidade FROM produto WHERE id = ?', id)
   const delta = after.quantidade - before.quantidade
   if (delta !== 0) {
-    const tipo = delta > 0 ? 'entrada' : 'saida';
+    const tipo = delta > 0 ? 'entrada' : 'saida'
     await db.run(
       `INSERT INTO movimento (produto_id, tipo, quantidade, criado_em)
        VALUES (?, ?, ?, ?)`,
       id, tipo, Math.abs(delta), new Date().toISOString()
-    );
+    )
   }
   const produto = await db.get('SELECT * FROM produto WHERE id = ?', id)
-  res.json(produto);
-});
+  res.json(produto)
+})
 
 app.delete('/api/produtos/:id', async (req, res) => {
-  const { id } = req.params;
-  const db = await dbPromise;
-  await db.run('DELETE FROM produto WHERE id = ?', id);
-  res.status(204).end();
-});
+  const { id } = req.params
+  const db = await dbPromise
+  await db.run('DELETE FROM produto WHERE id = ?', id)
+  res.status(204).end()
+})
 
-// Integração IoT via MQTT
-const mqttUrl = functions.config().mqtt?.url || 'mqtt://broker.emqx.io';
-const client = mqtt.connect(mqttUrl);
-client.on('connect', () => client.subscribe('estoque/sensor/+'));
-client.on('message', async (topic, msg) => {
-  try {
-    const { id, quantidade } = JSON.parse(msg.toString());
-    const db = await dbPromise;
-    await db.run('UPDATE produto SET quantidade = ? WHERE id = ?', quantidade, id);
-  } catch (e) {
-    console.error('Erro ao processar mensagem MQTT:', e);
-  }
-});
+// Integração IoT via MQTT (inicialização assíncrona)
+setImmediate(() => {
+  const mqttUrl = functions.config().mqtt?.url || 'mqtt://broker.emqx.io'
+  const client = mqtt.connect(mqttUrl)
+  client.on('connect', () => client.subscribe('estoque/sensor/+'))
+  client.on('message', async (topic, msg) => {
+    try {
+      const { id, quantidade } = JSON.parse(msg.toString())
+      const db = await dbPromise
+      await db.run('UPDATE produto SET quantidade = ? WHERE id = ?', quantidade, id)
+    } catch (e) {
+      console.error('Erro ao processar mensagem MQTT:', e)
+    }
+  })
+})
 
-// Exporta como Cloud Function HTTP
-exports.app = functions.https.onRequest(app);
+// Export para o Functions Gen-2 invocar seu app em /api/*
+exports.app = functions.https.onRequest(app)
+
+// Expõe HTTP server no container para o TCP health-check
+if (process.env.K_SERVICE) {
+  const port = process.env.PORT || 8080
+  app.listen(port, () => console.log(`Container listening on port ${port}`))
+}

@@ -1,19 +1,36 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * const {onCall} = require("firebase-functions/v2/https");
- * const {onDocumentWritten} = require("firebase-functions/v2/firestore");
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
+const functions = require('firebase-functions')
+const express   = require('express')
+const cors      = require('cors')
+const mqtt      = require('mqtt')
+const { open }  = require('sqlite')
+const sqlite3   = require('sqlite3')
 
-const {onRequest} = require("firebase-functions/v2/https");
-const logger = require("firebase-functions/logger");
+const app = express()
+app.use(cors(), express.json())
 
-// Create and deploy your first functions
-// https://firebase.google.com/docs/functions/get-started
+// 1) Conexão SQLite e seed (adapte caminhos se precisar)
+const dbPromise = open({
+  filename: './estoque.db',
+  driver: sqlite3.Database
+})
 
-// exports.helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
+// 2) Criação de tabelas e seed — igual ao seu index.js
+;(async () => {
+  const db = await dbPromise
+  // ... seu código de CREATE TABLE e seed ...
+})()
+
+// 3) Rotas CRUD
+app.get('/produtos',      /* ... */)
+app.post('/produtos',     /* ... */)
+app.put('/produtos/:id',  /* ... */)
+app.delete('/produtos/:id',/* ... */)
+
+// 4) MQTT (se precisar)
+const client = mqtt.connect(process.env.MQTT_BROKER_URL||'mqtt://broker.emqx.io')
+client.on('connect', () => {/*...*/})
+client.on('message', async (topic,msg) => {/*...*/})
+
+// **IMPORTANTE**: não use app.listen()
+// Em vez disso, exporte sua API como função HTTP:
+exports.api = functions.https.onRequest(app)
