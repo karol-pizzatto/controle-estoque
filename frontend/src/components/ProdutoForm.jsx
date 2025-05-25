@@ -26,10 +26,10 @@ export function ProdutoForm({ produtoEdit, onSave }) {
         const [y, m, d] = v.split('-');
         setDataValidade(`${d}-${m}-${y}`);
       } else {
-        setDataValidade(v)
-      };
+        setDataValidade(v);
+      }
     } else {
-      setDataValidade('')
+      setDataValidade('');
     }
 
     setValorCusto(produtoEdit.valor_custo);
@@ -37,7 +37,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
   }, [produtoEdit]);
 
   const handleSubmit = async e => {
-    e.preventDefault()
+    e.preventDefault();
     const payload = {
       nome,
       marca,
@@ -48,30 +48,22 @@ export function ProdutoForm({ produtoEdit, onSave }) {
       valor_venda: valorVenda
     };
 
-try {
-    if (produtoEdit && produtoEdit.id) {
-      // Editar existente — use produtoEdit.id
-      await axios.put(`${API_URL}/produtos/${produtoEdit.id}`, payload);
-    } else {
-      // Novo produto
-      await axios.post(`${API_URL}/produtos`, payload);
+    try {
+      if (produtoEdit && produtoEdit.id) {
+        // Editar existente — use produtoEdit.id
+        await axios.put(`${API_URL}/produtos/${produtoEdit.id}`, payload);
+      } else {
+        // Novo produto
+        await axios.post(`${API_URL}/produtos`, payload);
+      }
+      // depois de salvar, recarrega a lista
+      onSave && onSave();
+    } catch (err) {
+      console.error('Erro ao salvar produto:', err);
+      alert('Não foi possível salvar o produto.');
     }
-    // depois de salvar, recarrega a lista
-    onSave && onSave();
-  } catch (err) {
-    console.error('Erro ao salvar produto:', err);
-    alert('Não foi possível salvar o produto.');
-  }
-  };  //conferir se este é necessario
-
-
-      // Notifica o App pra recarregar a lista
-      // no outro codigo este não existe, favor conferir
-      onSave(payload)
-
   };
 
-{  
   return (
     <form onSubmit={handleSubmit} style={{ marginBottom: '1rem' }}>
       {/* Nome */}

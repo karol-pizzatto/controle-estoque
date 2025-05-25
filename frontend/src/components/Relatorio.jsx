@@ -8,24 +8,24 @@ import {
 const API_URL = import.meta.env.VITE_API_URL;
 
 export function Relatorio() {
-  const [estoque, setEstoque] = useState([])
-  const [movimentos, setMovimentos] = useState({})
+  const [estoque, setEstoque] = useState([]);
+  const [movimentos, setMovimentos] = useState({});
   const hoje = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
     axios.get(`${API_URL}/relatorios/estoque`)
-      .then(res => setEstoque(res.data))
+      .then(res => setEstoque(res.data || []))
       .catch(console.error);
     axios.get(`${API_URL}/relatorios/movimentos/${hoje}`)
-      .then(res => setMovimentos(res.data))
+      .then(res => setMovimentos(res.data || {}))
       .catch(console.error);
   }, [hoje]);
 
-  const dadosGrafico = estoque.map(p => ({
+  const dadosGrafico = (estoque || []).map(p => ({
     nome: p.nome,
     estoque: p.quantidade,
-    entrada: movimentos[p.id]?.entrada || 0,
-    saida: movimentos[p.id]?.saida || 0
+    entrada: (movimentos && movimentos[p.id]?.entrada) || 0,
+    saida: (movimentos && movimentos[p.id]?.saida) || 0
   }));
 
   return (

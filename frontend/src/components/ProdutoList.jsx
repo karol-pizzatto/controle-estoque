@@ -10,7 +10,7 @@ export function ProdutoList({ onEdit }) {
   const carregar = async () => {
     try {
       const response = await axios.get(`${API_URL}/produtos`);
-      setProdutos(data);
+      setProdutos(response.data);
     } catch (err) {
       console.error('Falha ao carregar produtos:', err);
       alert('Não foi possível carregar os produtos.');
@@ -24,7 +24,7 @@ export function ProdutoList({ onEdit }) {
   const excluir = async id => {
     if (!window.confirm('Confirma exclusão deste produto?')) return;
     try {
-      await axios.delete(`${API_URL}/produtos/${produtoId}`);
+      await axios.delete(`${API_URL}/produtos/${id}`);
       carregar();
     } catch (err) {
       console.error('Erro ao excluir:', err);
@@ -86,7 +86,7 @@ export function ProdutoList({ onEdit }) {
                   </button>
                 </td>
               </tr>
-            )
+            );
           })}
         </tbody>
       </table>
