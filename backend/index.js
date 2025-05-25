@@ -1,4 +1,3 @@
-const functions = require('firebase-functions');
 const express   = require('express');
 const cors      = require('cors');
 const { open }  = require('sqlite');
@@ -14,7 +13,6 @@ const dbPromise = open({
 // tabelas
 (async () => {
   const db = await dbPromise;
-
   await db.run(`
     CREATE TABLE IF NOT EXISTS produto (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -64,7 +62,7 @@ app.use(cors({
   credentials: true,
 }));
 
-//testando para ver se corrige o problema
+//voltei esse cabecalho do cacete
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "https://controleestoquevitalagua.web.app");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
@@ -109,7 +107,6 @@ router.put('/produtos/:id', async (req, res) => {
   const { id } = req.params;
   const { nome, marca, quantidade, minimo, data_validade, valor_custo, valor_venda } = req.body;
   const db = await dbPromise;
-
   const before = await db.get('SELECT quantidade FROM produto WHERE id = ?', id);
   await db.run(
     `UPDATE produto
@@ -123,14 +120,11 @@ router.put('/produtos/:id', async (req, res) => {
      WHERE id = ?`,
     nome, marca, quantidade, minimo, data_validade, valor_custo, valor_venda, id
   );
-                        // fechava nesta linha antes
+  
 
-const after = await db.get('SELECT quantidade FROM produto WHERE id = ?', id);      //passou
-
-// Garante que o produto existe
+const after = await db.get('SELECT quantidade FROM produto WHERE id = ?', id);     //passou
 if (before && after) {
   const delta = (after.quantidade ?? 0) - (before.quantidade ?? 0);
-
   if (delta !== 0) {
     const tipo = delta > 0 ? 'entrada' : 'saida';
     await db.run(
@@ -146,7 +140,7 @@ if (before && after) {
 
 });  //fecha o router.put incluindo o const afeter no role
 
-// ultima rota de teste
+// passou
 router.delete('/produtos/:id', async (req, res) => {
   const { id } = req.params;
   const db = await dbPromise;
@@ -157,12 +151,11 @@ router.delete('/produtos/:id', async (req, res) => {
 // Health-check ---------------------------------------------------------------------------------------------
 app.get('/', (_, res) => res.send('OK'));
 
-// Exporta
+// Usa o router em /api
+app.use('/api', router);
 
-// exports.app = functions.https.onRequest(app);
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+// Inicia servidor
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`Servidor ouvindo na porta ${port}`);
 });
-
