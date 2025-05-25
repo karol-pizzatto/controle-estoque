@@ -1,36 +1,38 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export function ProdutoList({ onEdit }) {
-  const [produtos, setProdutos] = useState([])
+  const [produtos, setProdutos] = useState([]);
 
   // 1) Busca via endpoint reescrito 
   const carregar = async () => {
     try {
-      const response = await axios.get('https://app-scjrhl763a-uc.a.run.app/api/produtos')
-      setProdutos(data)
+      const response = await axios.get(`${API_URL}/produtos`);
+      setProdutos(data);
     } catch (err) {
-      console.error('Falha ao carregar produtos:', err)
-      alert('Não foi possível carregar os produtos.')
+      console.error('Falha ao carregar produtos:', err);
+      alert('Não foi possível carregar os produtos.');
     }
-  }
+  };
 
   useEffect(() => {
-    carregar()
-  }, [])
+    carregar();
+  }, []);
 
   const excluir = async id => {
-    if (!window.confirm('Confirma exclusão deste produto?')) return
+    if (!window.confirm('Confirma exclusão deste produto?')) return;
     try {
-      await axios.delete(`https://app-scjrhl763a-uc.a.run.app/api/produtos/${produtoId}`)
-      carregar()
+      await axios.delete(`${API_URL}/produtos/${produtoId}`);
+      carregar();
     } catch (err) {
-      console.error('Erro ao excluir:', err)
-      alert('Não foi possível excluir o produto.')
+      console.error('Erro ao excluir:', err);
+      alert('Não foi possível excluir o produto.');
     }
-  }
+  };
 
-  const algumBaixo = produtos.some(p => p.quantidade <= p.minimo)
+  const algumBaixo = produtos.some(p => p.quantidade <= p.minimo);
 
   return (
     <div>
@@ -57,13 +59,13 @@ export function ProdutoList({ onEdit }) {
         </thead>
         <tbody>
           {produtos.map(p => {
-            const baixo = p.quantidade <= p.minimo
+            const baixo = p.quantidade <= p.minimo;
 
             // 2) Formata data de validade para DD-MM-YYYY
-            let validade = ''
+            let validade = '';
             if (p.data_validade) {
-              const [y, m, d] = p.data_validade.split('-')
-              validade = `${d}-${m}-${y}`
+              const [y, m, d] = p.data_validade.split('-');
+              validade = `${d}-${m}-${y}`;
             }
 
             return (
@@ -89,5 +91,5 @@ export function ProdutoList({ onEdit }) {
         </tbody>
       </table>
     </div>
-  )
+  );
 }

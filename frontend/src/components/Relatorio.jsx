@@ -1,30 +1,32 @@
-import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import React, { useEffect, useState } from 'react';
+import axios from 'axios';
 import {
   BarChart, Bar, XAxis, YAxis, Tooltip,
   Legend, ResponsiveContainer
-} from 'recharts'
+} from 'recharts';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export function Relatorio() {
   const [estoque, setEstoque] = useState([])
   const [movimentos, setMovimentos] = useState({})
-  const hoje = new Date().toISOString().slice(0, 10)
+  const hoje = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
-    axios.get(`https://app-scjrhl763a-uc.a.run.app/relatorios/estoque`)
+    axios.get(`${API_URL}/relatorios/estoque`)
       .then(res => setEstoque(res.data))
-      .catch(console.error)
-    axios.get(`https://app-scjrhl763a-uc.a.run.app/relatorios/movimentos/${hoje}`)
+      .catch(console.error);
+    axios.get(`${API_URL}/relatorios/movimentos/${hoje}`)
       .then(res => setMovimentos(res.data))
-      .catch(console.error)
-  }, [hoje])
+      .catch(console.error);
+  }, [hoje]);
 
   const dadosGrafico = estoque.map(p => ({
     nome: p.nome,
     estoque: p.quantidade,
     entrada: movimentos[p.id]?.entrada || 0,
     saida: movimentos[p.id]?.saida || 0
-  }))
+  }));
 
   return (
     <section style={{ padding: '1rem' }}>
@@ -58,5 +60,5 @@ export function Relatorio() {
         </ResponsiveContainer>
       </div>
     </section>
-  )
+  );
 }

@@ -1,38 +1,40 @@
-import React, { useState, useEffect } from 'react'
-import axios from 'axios'
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 export function ProdutoForm({ produtoEdit, onSave }) {
-  const [nome, setNome]                 = useState('')
-  const [marca, setMarca]               = useState('')
-  const [quantidade, setQuantidade]     = useState(0)
-  const [minimo, setMinimo]             = useState(0)
-  const [dataValidade, setDataValidade] = useState('')
-  const [valorCusto, setValorCusto]     = useState(0)
-  const [valorVenda, setValorVenda]     = useState(0)
+  const [nome, setNome]                 = useState('');
+  const [marca, setMarca]               = useState('');
+  const [quantidade, setQuantidade]     = useState(0);
+  const [minimo, setMinimo]             = useState(0);
+  const [dataValidade, setDataValidade] = useState('');
+  const [valorCusto, setValorCusto]     = useState(0);
+  const [valorVenda, setValorVenda]     = useState(0);
 
   useEffect(() => {
-    if (!produtoEdit) return
+    if (!produtoEdit) return;
 
-    setNome(produtoEdit.nome)
-    setMarca(produtoEdit.marca)
-    setQuantidade(produtoEdit.quantidade)
-    setMinimo(produtoEdit.minimo)
+    setNome(produtoEdit.nome);
+    setMarca(produtoEdit.marca);
+    setQuantidade(produtoEdit.quantidade);
+    setMinimo(produtoEdit.minimo);
 
     if (produtoEdit.data_validade) {
-      const v = produtoEdit.data_validade
+      const v = produtoEdit.data_validade;
       if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-        const [y, m, d] = v.split('-')
-        setDataValidade(`${d}-${m}-${y}`)
+        const [y, m, d] = v.split('-');
+        setDataValidade(`${d}-${m}-${y}`);
       } else {
         setDataValidade(v)
-      }
+      };
     } else {
       setDataValidade('')
     }
 
-    setValorCusto(produtoEdit.valor_custo)
-    setValorVenda(produtoEdit.valor_venda)
-  }, [produtoEdit])
+    setValorCusto(produtoEdit.valor_custo);
+    setValorVenda(produtoEdit.valor_venda);
+  }, [produtoEdit]);
 
   const handleSubmit = async e => {
     e.preventDefault()
@@ -44,29 +46,30 @@ export function ProdutoForm({ produtoEdit, onSave }) {
       data_validade: dataValidade,
       valor_custo: valorCusto,
       valor_venda: valorVenda
-    }
+    };
 
 try {
-  if (produtoEdit && produtoEdit.id) {
-    // Editar existente — use produtoEdit.id
-    await axios.put(`https://app-scjrhl763a-uc.a.run.app/api/produtos/${produtoEdit.id}`, payload)
-  } else {
-    // Novo produto
-    await axios.post('https://app-scjrhl763a-uc.a.run.app/api/produtos', payload)
+    if (produtoEdit && produtoEdit.id) {
+      // Editar existente — use produtoEdit.id
+      await axios.put(`${API_URL}/produtos/${produtoEdit.id}`, payload);
+    } else {
+      // Novo produto
+      await axios.post(`${API_URL}/produtos`, payload);
+    }
+    // depois de salvar, recarrega a lista
+    onSave && onSave();
+  } catch (err) {
+    console.error('Erro ao salvar produto:', err);
+    alert('Não foi possível salvar o produto.');
   }
-  // depois de salvar, você provavelmente quer recarregar a lista ou chamar onSave
-  onSave && onSave()
-} catch (err) {
-  console.error('Erro ao salvar produto:', err)
-  alert('Não foi possível salvar o produto.')
-}
-
+  };  //conferir se este é necessario
 
 
       // Notifica o App pra recarregar a lista
+      // no outro codigo este não existe, favor conferir
       onSave(payload)
 
-  }
+  };
 
 {  
   return (
@@ -167,5 +170,5 @@ try {
         </button>
       )}
     </form>
-  )
-}}
+  );
+}

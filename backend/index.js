@@ -60,9 +60,18 @@ const dbPromise = open({
 //middlewares
 
 app.use(cors({
-  origin: "https://controleestoquevitalagua.web.app", // libera só seu front na nuvem!
+  origin: "https://controleestoquevitalagua.web.app",
   credentials: true,
 }));
+
+//testando para ver se corrige o problema
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "https://controleestoquevitalagua.web.app");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  next();
+});
+
 app.use(express.json());
 
 // ROTAS ---------------------------------------------------------------------------------------------
