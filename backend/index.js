@@ -59,7 +59,10 @@ const dbPromise = open({
 
 //middlewares
 
-app.use(cors());
+app.use(cors({
+  origin: "https://controleestoquevitalagua.web.app", // libera só seu front na nuvem!
+  credentials: true,
+}));
 app.use(express.json());
 
 // ROTAS ---------------------------------------------------------------------------------------------
@@ -146,4 +149,4 @@ router.delete('/produtos/:id', async (req, res) => {
 app.get('/', (_, res) => res.send('OK'));
 
 // Exporta pro Firebase Functions
-exports.app = functions.https.onRequest(app)
+exports.app = functions.https.onRequest(app);

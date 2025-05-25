@@ -1,28 +1,16 @@
 {
-  "functions": [
-    {
+  "functions": {
       "source": "backend",
-      "codebase": "default",
       "runtime": "nodejs22"
-    }
-  ],
+    },
+    
   "hosting": {
     "site": "controleestoquevitalagua",
     "public": "frontend/dist",
-    "ignore": [
-      "firebase.json",
-      "**/.*",
-      "**/node_modules/**"
-    ],
+    "ignore": ["firebase.json","**/.*","**/node_modules/**"],
     "rewrites": [
-      {
-        "source": "/api/**",
-        "function": "app"
-      },
-      {
-        "source": "**",
-        "destination": "/index.html"
-      }
+      { "source": "/api/**", "function": "app" },
+      { "source": "**",   "destination": "/index.html" }
     ]
   }
 }
