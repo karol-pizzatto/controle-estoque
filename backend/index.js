@@ -157,5 +157,12 @@ router.delete('/produtos/:id', async (req, res) => {
 // Health-check ---------------------------------------------------------------------------------------------
 app.get('/', (_, res) => res.send('OK'));
 
-// Exporta pro Firebase Functions
-exports.app = functions.https.onRequest(app);
+// Exporta
+
+// exports.app = functions.https.onRequest(app);
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
