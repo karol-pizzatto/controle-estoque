@@ -1,0 +1,12 @@
+# Ignora tudo por padrão
+**
+
+# Mas re-inclui todo o conteúdo…
+!**
+
+# …exceto essas pastas que não queremos no build
+node_modules/**
+.git/**
+
+# E força a inclusão do dist/
+!dist/**

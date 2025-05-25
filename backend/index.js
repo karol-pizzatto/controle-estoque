@@ -5,36 +5,43 @@ const app = express();
 const router = express.Router();
 
 const pool = mysql.createPool({
-  host:     '34.95.223.214',      // ex: IP do Cloud SQL
-  user:     'adminK',             // usuário do banco
-  password: 'Neosoro30vida',      // senha
-  database: 'estoqueVital',       // nome do banco
+  host:     '34.95.223.214',      
+  user:     'adminK',            
+  password: 'Neosoro30vida',     
+  database: 'estoqueVital',       
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
 
-// Middlewares
+/// CORS unificado para dev e prod
+const allowedOrigins = [
+  'http://localhost:5173',                                  // front em dev
+  'https://controleestoquevitalagua.web.app',              // front em prod
+  'https://vitalagua-frontend-347908612509.southamerica-east1.run.app' // opcional, caso você chame a si mesmo
+];
+
 app.use(cors({
-  origin: "https://controleestoquevitalagua.web.app",
-  credentials: true,
+  origin: (origin, callback) => {
+    // se não vier origin (curl/postman) OU for uma origin permitida → OK
+    if (!origin || allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    }
+    callback(new Error(`Origin ${origin} não permitida pelo CORS`));
+  },
+  credentials: true
 }));
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://controleestoquevitalagua.web.app");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-  next();
-});
+
 app.use(express.json());
 
 // ROTAS ---------------------------------------------------------------------------------------------
 router.get('/produtos', async (_, res) => {
   try {
     const [rows] = await pool.query('SELECT * FROM produto');
-    res.json(rows);
+    return res.json(rows); // coloquei o return
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erro ao buscar produtos.' });
+    console.error('DETALHE DO ERRO NO MYSWL:', err);
+    return res.status(500).json({ error: 'Erro ao buscar produtos.' }); // coloquei o return
   }
 });
 
@@ -96,13 +103,19 @@ router.put('/produtos/:id', async (req, res) => {
 router.delete('/produtos/:id', async (req, res) => {
   try {
     const { id } = req.params;
+
+    // 1) Remove primeiro todos os movimentos desse produto
+    await pool.query('DELETE FROM movimento WHERE produto_id = ?', [id]);
+    // 2) Agora deleta o produto
     await pool.query('DELETE FROM produto WHERE id = ?', [id]);
+
     res.status(204).end();
   } catch (err) {
-    console.error(err);
+    console.error('Erro ao excluir produto e movimentos:', err);
     res.status(500).json({ error: 'Erro ao excluir produto.' });
   }
 });
+
 
 // Health-check
 app.get('/', (_, res) => res.send('OK'));

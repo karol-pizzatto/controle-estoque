@@ -6,7 +6,6 @@ const API_URL = import.meta.env.VITE_API_URL;
 export function ProdutoList({ onEdit }) {
   const [produtos, setProdutos] = useState([]);
 
-  // 1) Busca via endpoint reescrito 
   const carregar = async () => {
     try {
       const response = await axios.get(`${API_URL}/produtos`);
@@ -21,7 +20,7 @@ export function ProdutoList({ onEdit }) {
     carregar();
   }, []);
 
-  const excluir = async id => {
+  const excluir = async (id) => {
     if (!window.confirm('Confirma exclusão deste produto?')) return;
     try {
       await axios.delete(`${API_URL}/produtos/${id}`);
@@ -32,7 +31,7 @@ export function ProdutoList({ onEdit }) {
     }
   };
 
-  const algumBaixo = produtos.some(p => p.quantidade <= p.minimo);
+  const algumBaixo = produtos.some(p => (p.quantidade ?? 0) <= (p.minimo ?? 0));
 
   return (
     <div>
@@ -59,24 +58,26 @@ export function ProdutoList({ onEdit }) {
         </thead>
         <tbody>
           {produtos.map(p => {
-            const baixo = p.quantidade <= p.minimo;
+            const baixo = (p.quantidade ?? 0) <= (p.minimo ?? 0);
 
-            // 2) Formata data de validade para DD-MM-YYYY
-            let validade = '';
-            if (p.data_validade) {
-              const [y, m, d] = p.data_validade.split('-');
-              validade = `${d}-${m}-${y}`;
-            }
+            // formata data YYYY-MM-DD → DD-MM-YYYY
+            const validade = p.data_validade
+              ? new Date(p.data_validade).toLocaleDateString('pt-BR')
+              : '';
+
+            // converte strings DECIMAL para número antes de toFixed
+            const custoFormatado = Number(p.valor_custo ?? 0).toFixed(2);
+            const vendaFormatada = Number(p.valor_venda ?? 0).toFixed(2);
 
             return (
               <tr key={p.id} style={baixo ? { background: '#fdd' } : {}}>
                 <td>{p.nome}</td>
                 <td>{p.marca}</td>
-                <td>{p.quantidade}</td>
-                <td>{p.minimo}</td>
+                <td>{p.quantidade ?? 0}</td>
+                <td>{p.minimo ?? 0}</td>
                 <td>{validade}</td>
-                <td>{p.valor_custo.toFixed(2)}</td>
-                <td>{p.valor_venda.toFixed(2)}</td>
+                <td>{custoFormatado}</td>
+                <td>{vendaFormatada}</td>
                 <td>
                   <button onClick={() => onEdit(p)} title={`Editar ${p.nome}`}>
                     ✏️

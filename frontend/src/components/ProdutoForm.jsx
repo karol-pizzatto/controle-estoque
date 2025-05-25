@@ -13,51 +13,63 @@ export function ProdutoForm({ produtoEdit, onSave }) {
   const [valorVenda, setValorVenda]     = useState(0);
 
   useEffect(() => {
-    if (!produtoEdit) return;
-
-    setNome(produtoEdit.nome);
-    setMarca(produtoEdit.marca);
-    setQuantidade(produtoEdit.quantidade);
-    setMinimo(produtoEdit.minimo);
-
-    if (produtoEdit.data_validade) {
-      const v = produtoEdit.data_validade;
-      if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
-        const [y, m, d] = v.split('-');
-        setDataValidade(`${d}-${m}-${y}`);
-      } else {
-        setDataValidade(v);
-      }
-    } else {
+    if (!produtoEdit) {
+      // limpa o formulário quando não há edição
+      setNome('');
+      setMarca('');
+      setQuantidade(0);
+      setMinimo(0);
       setDataValidade('');
+      setValorCusto(0);
+      setValorVenda(0);
+      return;
     }
 
-    setValorCusto(produtoEdit.valor_custo);
-    setValorVenda(produtoEdit.valor_venda);
+    setNome(produtoEdit.nome || '');
+    setMarca(produtoEdit.marca || '');
+    setQuantidade(produtoEdit.quantidade ?? 0);
+    setMinimo(produtoEdit.minimo ?? 0);
+
+    // converte pra YYYY-MM-DD para o <input type="date">
+   if (produtoEdit.data_validade) {
+     const d = new Date(produtoEdit.data_validade);
+     const iso = d.toISOString().split('T')[0];  
+     setDataValidade(iso);
+   } else {
+     setDataValidade('');
+   }
+
+    setValorCusto(produtoEdit.valor_custo ?? 0);
+    setValorVenda(produtoEdit.valor_venda ?? 0);
   }, [produtoEdit]);
 
-  const handleSubmit = async e => {
-    e.preventDefault();
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
     const payload = {
       nome,
       marca,
       quantidade,
       minimo,
-      data_validade: dataValidade,
+      data_validade: dataValidade || null,
       valor_custo: valorCusto,
-      valor_venda: valorVenda
+      valor_venda: valorVenda,
     };
 
     try {
-      if (produtoEdit && produtoEdit.id) {
-        // Editar existente — use produtoEdit.id
+      if (produtoEdit && produtoEdit.id) {        
         await axios.put(`${API_URL}/produtos/${produtoEdit.id}`, payload);
-      } else {
-        // Novo produto
+      } else {       
         await axios.post(`${API_URL}/produtos`, payload);
-      }
-      // depois de salvar, recarrega a lista
-      onSave && onSave();
+      }      
+      onSave && onSave(); //informa para recarregar a lista
+      setNome('');
+      setMarca('');
+      setQuantidade(0);
+      setMinimo(0);
+      setDataValidade('');
+      setValorCusto(0);
+      setValorVenda(0);
     } catch (err) {
       console.error('Erro ao salvar produto:', err);
       alert('Não foi possível salvar o produto.');
@@ -65,8 +77,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginBottom: '1rem' }}>
-      {/* Nome */}
+    <form onSubmit={handleSubmit} style={{ marginBottom: '1rem' }}>      
       <div>
         <label htmlFor="nome">Nome:</label><br />
         <input
@@ -76,8 +87,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
           required
         />
       </div>
-
-      {/* Marca */}
+     
       <div>
         <label htmlFor="marca">Marca:</label><br />
         <input
@@ -87,8 +97,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
           required
         />
       </div>
-
-      {/* Quantidade */}
+     
       <div>
         <label htmlFor="quantidade">Quantidade:</label><br />
         <input
@@ -99,8 +108,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
           required
         />
       </div>
-
-      {/* Estoque Mínimo */}
+     
       <div>
         <label htmlFor="minimo">Estoque Mínimo:</label><br />
         <input
@@ -111,8 +119,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
           required
         />
       </div>
-
-      {/* Data de Validade */}
+      
       <div>
         <label htmlFor="dataValidade">Data de Validade:</label><br />
         <input
@@ -122,8 +129,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
           onChange={e => setDataValidade(e.target.value)}
         />
       </div>
-
-      {/* Valor de Custo */}
+      
       <div>
         <label htmlFor="valorCusto">Valor de Custo:</label><br />
         <input
@@ -136,7 +142,6 @@ export function ProdutoForm({ produtoEdit, onSave }) {
         />
       </div>
 
-      {/* Valor de Venda */}
       <div>
         <label htmlFor="valorVenda">Valor de Venda:</label><br />
         <input
