@@ -1,0 +1,41 @@
+/* Alerta de estoque baixo */
+.alert {
+  padding: 0.5rem;
+  background-color: #fcc;
+  margin-bottom: 1rem;
+  border: 1px solid #f99;
+  border-radius: 4px;
+}
+
+/* Tabela geral */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+/* Células e cabeçalho */
+.table th,
+.table td {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  text-align: left;
+}
+
+/* Linha de alerta no corpo da tabela */
+.lowStock {
+  background-color: #fdd;
+}
+
+/* Botões de ação (ícones) */
+.btnIcon {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.25rem;
+  font-size: 1rem;
+}
+
+.btnIcon:focus {
+  outline: 2px dashed #333;
+  outline-offset: 2px;
+}

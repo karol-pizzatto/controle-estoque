@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
+import styles from './ProdutoList.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -8,8 +9,8 @@ export function ProdutoList({ onEdit }) {
 
   const carregar = async () => {
     try {
-      const response = await axios.get(`${API_URL}/produtos`);
-      setProdutos(response.data);
+      const { data } = await axios.get(`${API_URL}/produtos`);
+      setProdutos(data);
     } catch (err) {
       console.error('Falha ao carregar produtos:', err);
       alert('Não foi possível carregar os produtos.');
@@ -31,46 +32,45 @@ export function ProdutoList({ onEdit }) {
     }
   };
 
-  const algumBaixo = produtos.some(p => (p.quantidade ?? 0) <= (p.minimo ?? 0));
+  const algumBaixo = produtos.some(
+    p => (p.quantidade ?? 0) <= (p.minimo ?? 0)
+  );
 
   return (
     <div>
       {algumBaixo && (
-        <div
-          role="alert"
-          style={{ padding: '0.5rem', background: '#fcc', marginBottom: '1rem' }}
-        >
+        <div role="alert" className={styles.alert}>
           ⚠️ Atenção: alguns produtos estão com estoque baixo!
         </div>
       )}
-      <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+
+      <table className={styles.table} aria-label="Lista de Produtos">
         <thead>
           <tr>
-            <th>Nome</th>
-            <th>Marca</th>
-            <th>Qtd</th>
-            <th>Min</th>
-            <th>Validade</th>
-            <th>Custo</th>
-            <th>Venda</th>
-            <th>Ações</th>
+            <th scope="col">Nome</th>
+            <th scope="col">Marca</th>
+            <th scope="col">Qtd</th>
+            <th scope="col">Min</th>
+            <th scope="col">Validade</th>
+            <th scope="col">Custo</th>
+            <th scope="col">Venda</th>
+            <th scope="col">Ações</th>
           </tr>
         </thead>
         <tbody>
           {produtos.map(p => {
             const baixo = (p.quantidade ?? 0) <= (p.minimo ?? 0);
-
-            // formata data YYYY-MM-DD → DD-MM-YYYY
             const validade = p.data_validade
               ? new Date(p.data_validade).toLocaleDateString('pt-BR')
               : '';
-
-            // converte strings DECIMAL para número antes de toFixed
             const custoFormatado = Number(p.valor_custo ?? 0).toFixed(2);
             const vendaFormatada = Number(p.valor_venda ?? 0).toFixed(2);
 
             return (
-              <tr key={p.id} style={baixo ? { background: '#fdd' } : {}}>
+              <tr
+                key={p.id}
+                className={baixo ? styles.lowStock : undefined}
+              >
                 <td>{p.nome}</td>
                 <td>{p.marca}</td>
                 <td>{p.quantidade ?? 0}</td>
@@ -79,10 +79,20 @@ export function ProdutoList({ onEdit }) {
                 <td>{custoFormatado}</td>
                 <td>{vendaFormatada}</td>
                 <td>
-                  <button onClick={() => onEdit(p)} title={`Editar ${p.nome}`}>
+                  <button
+                    type="button"
+                    className={styles.btnIcon}
+                    onClick={() => onEdit(p)}
+                    aria-label={`Editar ${p.nome}`}
+                  >
                     ✏️
-                  </button>{' '}
-                  <button onClick={() => excluir(p.id)} title={`Excluir ${p.nome}`}>
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.btnIcon}
+                    onClick={() => excluir(p.id)}
+                    aria-label={`Excluir ${p.nome}`}
+                  >
                     🗑️
                   </button>
                 </td>
