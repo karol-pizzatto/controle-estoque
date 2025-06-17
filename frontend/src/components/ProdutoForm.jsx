@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import styles from './ProdutoForm.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -63,72 +62,66 @@ export function ProdutoForm({ produtoEdit, onSave }) {
   return (
     <form
       onSubmit={handleSubmit}
-      className={styles.form}
+      className="produto-form"
       aria-label={produtoEdit ? 'Formulário de edição de produto' : 'Formulário de cadastro de produto'}
     >
-      <div className={styles.field}>
+      <div className="field">
         <label htmlFor="nome">Nome:</label>
         <input
           id="nome"
-          className={styles.input}
           value={nome}
           onChange={e => setNome(e.target.value)}
           required
         />
       </div>
 
-      <div className={styles.field}>
+      <div className="field">
         <label htmlFor="marca">Marca:</label>
         <input
           id="marca"
-          className={styles.input}
           value={marca}
           onChange={e => setMarca(e.target.value)}
           required
         />
       </div>
 
-      <div className={styles.field}>
+      <div className="field">
         <label htmlFor="quantidade">Quantidade:</label>
         <input
           id="quantidade"
           type="number"
-          className={styles.input}
           value={quantidade}
           onChange={e => setQuantidade(+e.target.value)}
           required
         />
       </div>
 
-      <div className={styles.field}>
+      <div className="field">
         <label htmlFor="minimo">Estoque Mínimo:</label>
         <input
           id="minimo"
           type="number"
-          className={styles.input}
           value={minimo}
           onChange={e => setMinimo(+e.target.value)}
           required
         />
       </div>
 
-      <div className={styles.field}>
+      <div className="field">
         <label htmlFor="dataValidade">Data de Validade:</label>
         <input
           id="dataValidade"
           type="date"
-          className={styles.input}
           value={dataValidade}
           onChange={e => setDataValidade(e.target.value)}
         />
       </div>
 
-      <div className={styles.field}>
+      <div className="field">
         <label htmlFor="valorCusto">Valor de Custo:</label>
         <input
           id="valorCusto"
           type="number"
-          className={styles.input}
           step="0.01"
           value={valorCusto}
           onChange={e => setValorCusto(+e.target.value)}
@@ -136,12 +129,11 @@ export function ProdutoForm({ produtoEdit, onSave }) {
         />
       </div>
 
-      <div className={styles.field}>
+      <div className="field">
         <label htmlFor="valorVenda">Valor de Venda:</label>
         <input
           id="valorVenda"
           type="number"
-          className={styles.input}
           step="0.01"
           value={valorVenda}
           onChange={e => setValorVenda(+e.target.value)}
@@ -152,7 +144,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
       <div>
         <button
           type="submit"
-          className={styles.btnPrimary}
+          className="btnPrimary"
           aria-label={produtoEdit ? 'Atualizar produto' : 'Cadastrar produto'}
         >
           {produtoEdit ? 'Atualizar' : 'Cadastrar'}
@@ -160,7 +152,7 @@ export function ProdutoForm({ produtoEdit, onSave }) {
         {produtoEdit && (
           <button
             type="button"
-            className={styles.btnSecondary}
+            className="btnSecondary"
             onClick={() => onSave(null)}
             aria-label="Cancelar edição de produto"
           >

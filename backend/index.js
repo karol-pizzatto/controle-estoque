@@ -3,13 +3,16 @@ const cors    = require('cors');
 const mysql   = require('mysql2/promise');
 const PDFDocument = require('pdfkit');
 
+// const clientesRouter = require('./routes/clientes');
+
 const app    = express();
 const router = express.Router();
 
 const pool = mysql.createPool({
-  host:             '34.95.223.214',
-  user:             'adminK',
-  password:         'Neosoro30vida',
+  host:             'localhost',
+  port:              3306,
+  user:             'KarolControle',
+  password:         'vital2025controle',
   database:         'estoqueVital',
   waitForConnections: true,
   connectionLimit:    10,
@@ -19,8 +22,8 @@ const pool = mysql.createPool({
 // CORS unificado para dev e prod
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://controleestoquevitalagua.web.app',
-  'https://vitalagua-api-347908612509.southamerica-east1.run.app'
+  // 'https://controleestoquevitalagua.web.app',
+  // 'https://vitalagua-api-347908612509.southamerica-east1.run.app'
 ];
 
 app.use(cors({
@@ -300,6 +303,9 @@ router.get('/relatorios/pdf', async (req, res) => {
 
 // monta todas as rotas sob /api
 app.use('/api', router);
+
+// rotas para novos clientes
+//app.use('/api/clientes', clientesRouter);
 
 // inicia servidor ouvindo em 0.0.0.0 na porta definida em ENV
 const PORT = process.env.PORT || 8080;

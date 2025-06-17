@@ -1,10 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import axios from 'axios';
-import {
-  BarChart, Bar, XAxis, YAxis, Tooltip,
-  Legend, ResponsiveContainer
-} from 'recharts';
-import styles from './Relatorio.module.css';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -49,15 +45,14 @@ export function Relatorio() {
     .filter(d => d.Entradas || d.Saídas);
 
   return (
-    <main className={styles.container}>
+    <main className="container">
       <section aria-labelledby="titulo-relatorio">
         <h1 id="titulo-relatorio">Relatório Personalizado</h1>
 
-        {/* FILTROS */}
-        <div className={styles.filters} role="group" aria-labelledby="filtros-relatorio">
+        <div className="filters" role="group" aria-labelledby="filtros-relatorio">
           <h2 id="filtros-relatorio" className="sr-only">Filtros de Relatório</h2>
 
-          <div className={styles.field}>
+          <div className="field">
             <label htmlFor="dataInicio">Data Início:</label>
             <input
               id="dataInicio"
@@ -67,7 +62,7 @@ export function Relatorio() {
             />
           </div>
 
-          <div className={styles.field}>
+          <div className="field">
             <label htmlFor="dataFim">Data Fim:</label>
             <input
               id="dataFim"
@@ -77,7 +72,7 @@ export function Relatorio() {
             />
           </div>
 
-          <div className={styles.field}>
+          <div className="field">
             <label htmlFor="produtoFiltro">Produto:</label>
             <select
               id="produtoFiltro"
@@ -91,50 +86,39 @@ export function Relatorio() {
             </select>
           </div>
 
-          <button
-            className={styles.btnPrimary}
-            onClick={fetchMovimentos}
-            aria-label="Aplicar filtros ao relatório"
-          >
+          <button className="btnPrimary" onClick={fetchMovimentos} aria-label="Aplicar filtros ao relatório">
             Aplicar Filtros
           </button>
 
-          <button
-            className={styles.btnPrimary}
-            onClick={handleExportPDF}
-            aria-label="Exportar relatório para PDF"
-          >
+          <button className="btnPrimary" onClick={handleExportPDF} aria-label="Exportar relatório para PDF">
             Exportar PDF
           </button>
         </div>
 
-        {/* ÁREA DO RELATÓRIO */}
-        <div ref={relatorioRef}>
-          {/* TABELA DE ESTOQUE */}
-          <h2>Estoque Atual</h2>
-          <table className={styles.table}>
-            <thead>
-              <tr>
-                <th scope="col">Produto</th>
-                <th scope="col">Qtd</th>
-                <th scope="col">Mín</th>
-              </tr>
-            </thead>
-            <tbody>
-              {estoque
-                .filter(p => !filtroProduto || p.nome === filtroProduto)
-                .map(p => (
-                  <tr key={p.nome}>
-                    <td>{p.nome}</td>
-                    <td style={{ textAlign: 'right' }}>{p.quantidade}</td>
-                    <td style={{ textAlign: 'right' }}>{p.minimo}</td>
-                  </tr>
-              ))}
-            </tbody>
-          </table>
+        <h2>Estoque Atual</h2>
+        <table className="table">
+          <thead>
+            <tr>
+              <th scope="col">Produto</th>
+              <th scope="col">Qtd</th>
+              <th scope="col">Mín</th>
+            </tr>
+          </thead>
+          <tbody>
+            {estoque
+              .filter(p => !filtroProduto || p.nome === filtroProduto)
+              .map(p => (
+                <tr key={p.nome}>
+                  <td>{p.nome}</td>
+                  <td style={{ textAlign: 'right' }}>{p.quantidade}</td>
+                  <td style={{ textAlign: 'right' }}>{p.minimo}</td>
+                </tr>
+            ))}
+          </tbody>
+        </table>
 
-          {/* GRÁFICO ENTRADAS x SAÍDAS */}
-          <h2>Entradas x Saídas</h2>
+        <h2>Entradas x Saídas</h2>
+        <div className="responsive-container">
           {chartData.length > 0 ? (
             <ResponsiveContainer width="100%" height={300}>
               <BarChart data={chartData}>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import styles from './ProdutoList.module.css';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -17,9 +16,7 @@ export function ProdutoList({ onEdit }) {
     }
   };
 
-  useEffect(() => {
-    carregar();
-  }, []);
+  useEffect(() => { carregar(); }, []);
 
   const excluir = async (id) => {
     if (!window.confirm('Confirma exclusão deste produto?')) return;
@@ -39,12 +36,12 @@ export function ProdutoList({ onEdit }) {
   return (
     <div>
       {algumBaixo && (
-        <div role="alert" className={styles.alert}>
+        <div role="alert" className="alert">
           ⚠️ Atenção: alguns produtos estão com estoque baixo!
         </div>
       )}
 
-      <table className={styles.table} aria-label="Lista de Produtos">
+      <table className="table" aria-label="Lista de Produtos">
         <thead>
           <tr>
             <th scope="col">Nome</th>
@@ -69,7 +66,7 @@ export function ProdutoList({ onEdit }) {
             return (
               <tr
                 key={p.id}
-                className={baixo ? styles.lowStock : undefined}
+                className={baixo ? 'lowStock' : undefined}
               >
                 <td>{p.nome}</td>
                 <td>{p.marca}</td>
@@ -81,18 +78,16 @@ export function ProdutoList({ onEdit }) {
                 <td>
                   <button
                     type="button"
-                    className={styles.btnIcon}
+                    className="btnIcon"
                     onClick={() => onEdit(p)}
-                    aria-label={`Editar ${p.nome}`}
-                  >
+                    aria-label={`Editar ${p.nome}`}>
                     ✏️
                   </button>
                   <button
                     type="button"
-                    className={styles.btnIcon}
+                    className="btnIcon"
                     onClick={() => excluir(p.id)}
-                    aria-label={`Excluir ${p.nome}`}
-                  >
+                    aria-label={`Excluir ${p.nome}`}>
                     🗑️
                   </button>
                 </td>

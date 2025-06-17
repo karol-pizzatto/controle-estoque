@@ -1,9 +1,15 @@
-// Import the functions you need from the SDKs you need
 import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
+import {
+  getFirestore,
+  serverTimestamp,
+  collection,
+  addDoc,
+  getDocs,
+  query,
+  orderBy
+} from "firebase/firestore";
 
-// Your web app's Firebase configuration
+// Config do seu projeto Firebase
 const firebaseConfig = {
   apiKey: "AIzaSyBrQo5ft7rMUTt2Y-8K-wXogc_ymgpCAmU",
   authDomain: "controle-estoquevitalagua.firebaseapp.com",
@@ -13,5 +19,11 @@ const firebaseConfig = {
   appId: "1:912547368073:web:6ecf90129a36740bf74a58"
 };
 
-// Initialize Firebase
+// Inicializa o Firebase
 const app = initializeApp(firebaseConfig);
+
+// Instância do Firestore
+const db = getFirestore(app);
+
+// Exporta tudo que você precisa no ClientForm
+export { db, serverTimestamp, collection, addDoc, getDocs, query, orderBy };
